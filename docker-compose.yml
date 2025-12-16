@@ -1,0 +1,40 @@
+services:
+  neo4j:
+    image: neo4j:5
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-password}
+      - NEO4J_dbms_default__listen__address=0.0.0.0
+      - NEO4J_dbms_default__advertised__address=neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - neo4j
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+  tests:
+    build: .
+    env_file:
+      - .env
+    command: pytest -q
+    depends_on:
+      - neo4j
+    volumes:
+      - .:/code
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
