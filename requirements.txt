@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+neo4j
+pydantic
+python-dotenv
+pytest
+requests
+httpx
+jupyter
+pandas
+pytest-cov
+pylint>=3.0
