@@ -81,3 +81,12 @@ class RelatedFilmsResponse(BaseModel):
 
     film_id: str
     related: List[RelatedFilm]
+
+class LLMQueryRequest(BaseModel):
+    question: str = Field(..., min_length=3)
+    limit: int = Field(20, ge=1, le=100)
+
+class LLMQueryResponse(BaseModel):
+    question: str
+    cypher: str
+    results: list[dict]

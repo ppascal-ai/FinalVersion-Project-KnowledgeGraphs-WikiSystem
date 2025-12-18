@@ -16,6 +16,8 @@ from app.routers.articles import router as articles_router
 from app.routers.authors import router as authors_router
 from app.routers.search import router as search_router
 from app.routers.topics import router as topics_router
+from app.routers import llm
+
 
 app = FastAPI(
     title="Knowledge Graph / Wiki API",
@@ -37,6 +39,7 @@ app.include_router(search_router)
 app.include_router(articles_router)
 app.include_router(topics_router)
 app.include_router(authors_router)
+app.include_router(llm.router)
 
 
 @app.on_event("shutdown")
