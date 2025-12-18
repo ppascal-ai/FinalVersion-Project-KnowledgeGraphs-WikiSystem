@@ -2,36 +2,39 @@
 
 **Projet AIDAMS 3A – Graph Databases & Knowledge Graphs**
 
-Projet réalisé dans le cadre du cours **Graph Databases & Knowledge Graphs**.
-L’objectif est de concevoir une **API REST de Knowledge Graph** basée sur **Neo4j** et **FastAPI**, permettant l’exploration avancée d’un graphe réel issu de **Wikidata** (films, auteurs, genres).
+Ce projet a été réalisé dans le cadre du cours **Graph Databases & Knowledge Graphs**.
+Il consiste à concevoir une **API REST de Knowledge Graph** basée sur **Neo4j** et **FastAPI**, permettant l’exploration avancée d’un graphe réel issu de **Wikidata** (films, réalisateurs, genres).
 
 ---
 
-## 👥 Équipe
+## 👥 Équipe & Organisation
 
-* **Paul Pascal** (Team Lead)
-* Andrea Surace Gomez
-* Toscane Cesbron Darnaud
+| Nom                     | Rôle                                   |
+| ----------------------- | -------------------------------------- |
+| **Paul Pascal**         | Team Lead                              |
+| Andrea Surace Gomez     | Développement / API / Graph            |
+| Toscane Cesbron Darnaud | Data ingestion / Tests / Documentation |
 
 ---
 
 ## 1. Objectif du projet
 
-Le but de ce projet est de construire une **API de graphes de connaissances** permettant :
+L’objectif de ce projet est de construire une **API de graphes de connaissances** permettant :
 
 * la **modélisation d’un dataset réel** sous forme de graphe,
-* l’**exploration relationnelle** (traversals multi-sauts),
+* l’**exploration relationnelle** via des traversals multi-sauts,
 * l’**analyse des contributions d’auteurs**,
-* la **recherche de contenu par thème**,
-* la **recommandation et la proximité sémantique** via des chemins dans le graphe,
+* la **recherche de contenu par thème, réalisateur ou titre**,
+* la **recommandation de films** basée sur la proximité dans le graphe,
 * l’exposition de **requêtes Cypher avancées** via une API FastAPI documentée.
 
 Le projet met en pratique :
 
 * la modélisation Neo4j,
-* l’optimisation de requêtes,
+* l’optimisation de requêtes Cypher,
 * l’ingestion de données externes,
-* les tests, le linting et le déploiement Docker.
+* les tests automatisés,
+* le linting et le déploiement Docker.
 
 ---
 
@@ -39,23 +42,23 @@ Le projet met en pratique :
 
 ### Source
 
-Le projet utilise un **dataset réel issu de Wikidata**, récupéré via des requêtes **SPARQL**.
+Le dataset utilisé est un **dataset réel issu de Wikidata**, récupéré via des requêtes **SPARQL**.
 
 Les données portent sur :
 
 * des **films**,
-* leurs **réalisateurs / auteurs**,
+* leurs **réalisateurs (auteurs)**,
 * leurs **genres cinématographiques**.
 
 Les données sont publiques et maintenues par la communauté Wikidata.
 
 ### Justification du choix
 
-Ce dataset est particulièrement adapté à un **graph database** car :
+Ce dataset est particulièrement adapté à une **graph database** car :
 
 * les relations sont centrales (films ↔ auteurs ↔ genres),
-* les parcours multi-niveaux sont naturels (ex. : auteurs reliés par des genres communs),
-* il permet d’illustrer des **cas d’usage concrets** : recommandations, similarités, analyses de contributions.
+* les parcours multi-niveaux sont naturels,
+* il permet d’illustrer des **cas d’usage concrets** : recherche, recommandations, similarités.
 
 ---
 
@@ -110,18 +113,16 @@ Ce dataset est particulièrement adapté à un **graph database** car :
 
 ### System Architecture
 
-!(docs/diagrams/architecture.png)
+![System Architecture](docs/diagrams/architecture.png)
 
 * FastAPI (port 8000)
 * Neo4j (7474 / 7687)
 * Scripts d’ingestion et de seed
 * Tests automatisés
 
----
-
 ### Neo4j Graph Schema
 
-!(docs/diagrams/neo4j_schema.png)
+![Neo4j Schema](docs/diagrams/neo4j_schema.png)
 
 ---
 
@@ -129,60 +130,40 @@ Ce dataset est particulièrement adapté à un **graph database** car :
 
 ### Nœuds
 
-| Label       | Description                     |
-| ----------- | ------------------------------- |
-| **Article** | Film (wikidata_id, title, year) |
-| **Author**  | Réalisateur / auteur            |
-| **Topic**   | Genre cinématographique         |
-
----
+| Label       | Description                           |
+| ----------- | ------------------------------------- |
+| **Article** | Film (`wikidata_id`, `title`, `year`) |
+| **Author**  | Réalisateur                           |
+| **Topic**   | Genre cinématographique               |
 
 ### Relations
 
-| Relation                               | Description                   |
-| -------------------------------------- | ----------------------------- |
-| `(:Author)-[:DIRECTED]->(:Article)`    | Un auteur a réalisé un film   |
-| `(:Article)-[:HAS_TOPIC]->(:Topic)`    | Un film appartient à un genre |
-| `(:Topic)-[:CO_OCCURS_WITH]->(:Topic)` | Genres apparaissant ensemble  |
+| Relation                               | Description                     |
+| -------------------------------------- | ------------------------------- |
+| `(:Author)-[:DIRECTED]->(:Article)`    | Un réalisateur a dirigé un film |
+| `(:Article)-[:HAS_TOPIC]->(:Topic)`    | Un film appartient à un genre   |
+| `(:Topic)-[:CO_OCCURS_WITH]->(:Topic)` | Genres apparaissant ensemble    |
 
 ---
 
-### Contraintes & Index
+## 6. Contraintes & Index Neo4j
 
-Créés automatiquement lors du seed :
+Les contraintes et index sont créés automatiquement lors du seed :
 
-* Contraintes d’unicité :
+### Contraintes d’unicité
 
-  * `Article.wikidata_id`
-  * `Author.wikidata_id`
-  * `Topic.name`
-* Index :
+* `Article.wikidata_id`
+* `Author.wikidata_id`
+* `Topic.name`
 
-  * `Article.title`
-  * `Article.year`
-  * `Author.name`
+### Index
 
----
+* `Article.title`
+* `Article.year`
+* `Author.name`
 
-## 6. Modeling Rationale
-
-Le modèle est volontairement **simple mais expressif**.
-
-* **Article** représente le contenu central.
-* **Author** permet l’analyse des contributions et des proximités entre réalisateurs.
-* **Topic** sert de pivot sémantique pour la navigation et la similarité.
-
-La relation **CO_OCCURS_WITH** enrichit le graphe en capturant des co-occurrences réelles entre genres, ce qui permet :
-
-* des recommandations,
-* des parcours indirects,
-* des analyses de similarité.
-
-Neo4j est particulièrement adapté à ce modèle car il permet :
-
-* des traversals multi-sauts efficaces,
-* l’exécution de requêtes analytiques complexes sans jointures coûteuses,
-* une évolution simple du schéma.
+👉 L’utilisation effective des index est vérifiée via **EXPLAIN / PROFILE**
+📎 Preuves disponibles dans `docs/index_proof.md`.
 
 ---
 
@@ -212,20 +193,21 @@ make seed
 
 ## 8. API – FastAPI
 
-Documentation interactive :
-👉 **[http://localhost:8000/docs](http://localhost:8000/docs)**
+Documentation interactive Swagger :
 
-*(Ajouter captures Swagger ici)*
+👉 [http://localhost:8000/docs](http://localhost:8000/docs)
+
+![Swagger UI](docs/screenshots/swagger.png)
 
 ### Endpoints principaux
 
-| Endpoint                          | Description                      |
-| --------------------------------- | -------------------------------- |
-| `/health`                         | Healthcheck                      |
-| `/api/search`                     | Recherche de films               |
-| `/api/articles/{id}/related`      | Films liés (protégé par API key) |
-| `/api/topics/{topic}/graph`       | Sous-graphe autour d’un genre    |
-| `/api/authors/{id}/contributions` | Contributions d’un auteur        |
+| Endpoint                          | Description                    |
+| --------------------------------- | ------------------------------ |
+| `/health`                         | Healthcheck Neo4j              |
+| `/api/search`                     | Recherche de films             |
+| `/api/articles/{id}/related`      | Films liés (API key)           |
+| `/api/topics/{topic}/graph`       | Sous-graphe autour d’un genre  |
+| `/api/authors/{id}/contributions` | Contributions d’un réalisateur |
 
 ---
 
@@ -233,56 +215,98 @@ Documentation interactive :
 
 Le projet implémente :
 
-* **shortestPath** (proximité entre auteurs),
-* OPTIONAL MATCH,
+* requêtes multi-sauts,
 * agrégations (`count`, `ORDER BY`),
+* OPTIONAL MATCH,
 * requêtes analytiques,
-* **EXPLAIN / PROFILE** pour l’optimisation.
+* utilisation de **EXPLAIN / PROFILE**.
 
-Les indexes sont effectivement utilisés (vérifié via EXPLAIN).
-
----
-
-## 10. Notebook de démonstration
-
-Un notebook `demo.ipynb` est fourni pour :
-
-* explorer le graphe,
-* exécuter des requêtes Cypher avancées,
-* analyser les performances,
-* illustrer les cas d’usage métier.
+📎 Exemples détaillés disponibles dans `docs/index_proof.md`.
 
 ---
 
-## 11. Tests & Qualité
+## 10. Tests & Qualité du code
+
+### Tests
+
+```bash
+make test
+```
 
 * Tests unitaires et d’intégration (`pytest`)
-* Linting avec **pylint**
-* Score pylint : **9.7 / 10**
-* `make test`, `make lint`, `make help` fonctionnels
+* Couverture générée (`htmlcov/`)
+
+![Make test Verif](docs/screenshots/make_test.png)
+
+### Linting
+
+```bash
+make lint
+```
+
+* Outil : **pylint**
+* Configuration : `.pylintrc` (présent à la racine)
+* Score obtenu : **9.95 / 10**
+
+![Make Lint Verif](docs/screenshots/make_lint.png)
 
 ---
 
-## 12. Docker
+## 11. Docker & Reproductibilité
 
-Image publique disponible sur Docker Hub :
+Lancement complet du projet :
+
+```bash
+make docker-run
+```
+
+![Make Docker-Run Verif](docs/screenshots/make_docker_run.png)
+
+* Build + lancement Neo4j & API
+* Projet entièrement reproductible
+
+Image Docker publique :
 
 👉 [https://hub.docker.com/repository/docker/ppascal92/graph-api/general](https://hub.docker.com/repository/docker/ppascal92/graph-api/general)
 
-Lancement rapide :
+---
 
-```bash
-make up
-```
+## 12. Contributions de l’équipe (GitHub)
+
+### Répartition des contributions
+
+📊 **Tableau des contributions**
+
+| Membre                  | % commits | PR merged |
+| ----------------------- | --------- | --------- |
+| Paul Pascal             | XX %      | PR #      |
+| Andrea Surace Gomez     | XX %      | PR #      |
+| Toscane Cesbron Darnaud | XX %      | PR #      |
+
+📸 **[À AJOUTER ICI]**
+
+* Screenshot GitHub Insights
+* Screenshot des PR mergées
 
 ---
 
-## 13. Conclusion
+## 13. Notebook de démonstration
+
+Le notebook `demo.ipynb` permet :
+
+* d’explorer le graphe,
+* d’exécuter des requêtes Cypher,
+* d’analyser les performances,
+* d’illustrer les cas d’usage métier.
+
+---
+
+## 14. Conclusion
 
 Ce projet démontre :
 
 * une **modélisation pertinente d’un graphe réel**,
 * une **API FastAPI propre et documentée**,
-* l’utilisation de **Cypher avancé**,
+* l’utilisation de **Cypher avancé et optimisé**,
 * une **architecture Docker reproductible**,
 * un **code testé, linté et maintenable**.
