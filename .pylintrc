@@ -1,0 +1,24 @@
+[MASTER]
+ignore=tests
+extension-pkg-allow-list=pydantic
+jobs=0
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  ; missing-module-docstring
+    C0115,  ; missing-class-docstring
+    C0116,  ; missing-function-docstring
+    R0903,  ; too-few-public-methods (souvent sur Pydantic)
+    R0913,  ; too-many-arguments (souvent sur endpoints)
+    W0511   ; TODO notes
+
+[FORMAT]
+max-line-length=100
+
+[DESIGN]
+max-args=10
+max-locals=20
+
+[REPORTS]
+score=yes
+output-format=text
