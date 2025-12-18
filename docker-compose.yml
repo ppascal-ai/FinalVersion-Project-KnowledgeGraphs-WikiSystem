@@ -9,6 +9,11 @@ services:
     ports:
       - "7474:7474"
       - "7687:7687"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
@@ -23,8 +28,14 @@ services:
       - neo4j
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
     volumes:
       - .:/code
+
   tests:
     build: .
     env_file:
@@ -32,6 +43,7 @@ services:
     command: pytest -q
     depends_on:
       - neo4j
+      - api
     volumes:
       - .:/code
 
