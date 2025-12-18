@@ -285,14 +285,15 @@ Image Docker publique :
 
 | Membre                  | % commits | PR merged |
 | ----------------------- | --------- | --------- |
-| Paul Pascal             | XX %      | PR #      |
-| Andrea Surace Gomez     | XX %      | PR #      |
-| Toscane Cesbron Darnaud | XX %      | PR #      |
+| Paul Pascal             | 40 %      | PR 6      |
+| Andrea Surace Gomez     | 35 %      | PR 4      |
+| Toscane Cesbron Darnaud | 25 %      | PR 3      |
 
-📸 **[À AJOUTER ICI]**
 
-* Screenshot GitHub Insights
-* Screenshot des PR mergées
+![Top Committers](docs/screenshots/Top_Committers.png)
+![PR Toscane](docs/screenshots/PR_Toscane.png)
+![PR Paul](docs/screenshots/PR_Paul.png)
+![PR Andrea](docs/screenshots/PR_Andrea.png)
 
 ---
 
