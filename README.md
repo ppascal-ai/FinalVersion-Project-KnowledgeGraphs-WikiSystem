@@ -12,8 +12,8 @@ Il consiste à concevoir une **API REST de Knowledge Graph** basée sur **Neo4j*
 | Nom                     | Rôle                                   |
 | ----------------------- | -------------------------------------- |
 | **Paul Pascal**         | Team Lead                              |
-| Andrea Surace Gomez     | Développement / API / Graph            |
-| Toscane Cesbron Darnaud | Data ingestion / Tests / Documentation |
+| Andrea Surace Gomez     | Member                                 |
+| Toscane Cesbron Darnaud | Member                                 |
 
 ---
 
