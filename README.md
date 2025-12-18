@@ -85,11 +85,17 @@ Ce dataset est particulièrement adapté à une **graph database** car :
 ├── docs
 │   ├── graph_model.md
 │   ├── index_proof.md
+│   ├── screenshots/
+│   │   ├── swagger.png
+│   │   ├── make_test.png
+│   │   ├── make_lint.png
+│   │   ├── make_docker_run.png
+│   │   └── github_insights.png
 │   └── diagrams
-│       ├── architecture.drawio
-│       ├── architecture.png
-│       ├── neo4j_schema.drawio
-│       └── neo4j_schema.png
+│      ├── architecture.drawio
+│      ├── architecture.png
+│      ├── neo4j_schema.drawio
+│      └── neo4j_schema.png
 ├── tests
 │   ├── test_health.py
 │   ├── test_search.py
